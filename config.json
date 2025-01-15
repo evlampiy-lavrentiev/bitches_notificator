@@ -1,0 +1,9 @@
+{
+    "admin_id": "my_id",
+    "api_id": "",
+    "api_hash": "",
+    "bot_token": "",
+    "channel_id": "@channel",
+    "actions": ["Leave", "Join"],
+    "timezone": "Europe/Moscow"
+}
