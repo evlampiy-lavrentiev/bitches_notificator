@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import telethon
-import tz
+from dateutil import tz
 from config import get_variable
 
 logger = logging.getLogger('bitches')
@@ -34,7 +34,7 @@ async def create_sessions():
 
     await client.start()
     await bot.start(bot_token=get_variable('bot_token'))
- 
+
 
 async def get_recent_actions(client):
     global channel
@@ -56,27 +56,32 @@ async def get_recent_actions(client):
     ))
     return recent_actions
 
-def construct_msg_text(id, username, date, action):
+def construct_msg_text(id, username_info, date, action):
     act_str = ""
     if type(action) == telethon.types.ChannelAdminLogEventActionParticipantLeave:
         act_str = "Leave"
     elif type(action) == telethon.types.ChannelAdminLogEventActionParticipantJoin:
         act_str = "Join"
-    
-    date = date.astimezone(tz.gettz(get_variable('timezone')))
-    
-    return f'<a href=\"tg://user?id={id}\">{username}</a> <b>{act_str}</b> in {date}'
-    #     await my_client.client.send_message(
-    #     my_client.chat_entity, 
-    #     f'<a href=\"tg://user?id={ent.user_id}\">{mentioned_name}</a> карта (пинг через {timeout_sec} секунд)',
-    #     reply_to=event.message,
-    #     parse_mode='html'
-    # )
-    
 
-def get_username_str(event):
-    for user in event.users:
-        return (str(user.first_name or '') + ' ' + str(user.last_name or '')).strip()
+    date = date.astimezone(tz.gettz(get_variable('timezone')))
+
+    name = username_info['name']
+    username = username_info['username']
+    logging.info(f'{id=} {username=} {name=}')
+    if username is not None:
+        link = f"t.me/{username}"
+    else:
+        link = f"tg://user?id={id}"
+    return f'<a href=\"{link}\">{name}</a> <b>{act_str}</b> in {date}'
+
+def get_usernames_dict(users):
+    ans = dict()
+    for user in users:
+        ans[user.id] = {
+            'name': (str(user.first_name or '') + ' ' + str(user.last_name or '')).strip(),
+            'username': user.username
+        }
+    return ans
 
 
 async def main():
@@ -89,17 +94,18 @@ async def main():
 
     while True:
         logging.info("Begin iteration")
-        logres = await get_recent_actions(client)
-        for event in logres.events:
-            username = get_username_str(event)
-            send_queue.append(construct_msg_text(event.user_id, username, event.date, event.action))
+        actions = await get_recent_actions(client)
+        id_to_username = get_usernames_dict(actions.users)
+        for event in actions.events:
+            username_info = id_to_username[event.user_id]
+            send_queue.append(construct_msg_text(event.user_id, username_info, event.date, event.action))
 
         logging.info(f'{len(send_queue)=} {len(sended_messages)=}')
         for msg in send_queue:
             if msg in sended_messages:
                 continue
             logging.info(f'sending message {msg}')
-            await bot.send_message(admin, msg, parse_mode='html')
+            await bot.send_message(admin, msg, parse_mode='html', link_preview=False)
             await asyncio.sleep(0.1)
             sended_messages.add(msg)
 
