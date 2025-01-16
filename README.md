@@ -81,8 +81,3 @@ The script performs the following actions:
 ## Support
 
 If you have any questions or suggestions, please create a discussion or an issue in the repository. We are happy to help!
-
----
-
-Remember to replace yourusername/repositoryname and your_script.py with your actual GitHub username, repository name, and script filename respectively.
-
