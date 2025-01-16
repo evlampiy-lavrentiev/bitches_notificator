@@ -1,0 +1,4 @@
+python-dotenv
+asyncio
+telethon
+python-dateutil
