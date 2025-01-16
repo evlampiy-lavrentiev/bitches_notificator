@@ -72,7 +72,7 @@ def construct_msg_text(id, username_info, date, action):
         link = f"t.me/{username}"
     else:
         link = f"tg://user?id={id}"
-    return f'<a href=\"{link}\">{name}</a> <b>{act_str}</b> in {date}'
+    return f'<a href=\"{link}\">{name}</a> <b>{act_str}</b> at {date}'
 
 def get_usernames_dict(users):
     ans = dict()

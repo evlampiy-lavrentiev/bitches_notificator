@@ -2,6 +2,12 @@
 
 This script is designed to send notifications about users who have joined or left a Telegram channel. Notifications are sent once daily, providing up-to-date information about the member dynamics of your channel.
 
+Example of messages:
+
+[User1](link1) **Join** at 2025-01-16 11:57:19+00:00
+
+[User2](link2) **Leave** at 2025-01-16 11:51:01+00:00
+
 ## Installation
 
 1. Clone the repository to your device:
